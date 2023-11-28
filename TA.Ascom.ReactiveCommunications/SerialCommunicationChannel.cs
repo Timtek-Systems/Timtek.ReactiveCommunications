@@ -14,7 +14,6 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text;
 using TA.Ascom.ReactiveCommunications.Diagnostics;
 using TA.Utils.Core;
 using TA.Utils.Core.Diagnostics;
@@ -79,8 +78,8 @@ namespace TA.Ascom.ReactiveCommunications
         /// <summary>Disconnects the serial port and closes the channel.</summary>
         public void Close()
             {
-            log.Info().Message("Channel closing => {endpoint}", endpoint);
-            receiverListening?.Dispose(); // Disconnects the serial event handlers
+                log.Info().Message("Channel closing => {endpoint}", endpoint).Write();
+                receiverListening?.Dispose(); // Disconnects the serial event handlers
             Port.Close();
             }
 
@@ -88,8 +87,8 @@ namespace TA.Ascom.ReactiveCommunications
         /// <param name="txData">The data to be transmitted.</param>
         public virtual void Send(string txData)
             {
-            log.Debug().Message("Sending [{txdata}]", txData.ExpandAscii());
-            Port.Write(txData);
+                log.Debug().Message("Sending [{txdata}]", txData.ExpandAscii()).Write();
+                Port.Write(txData);
             }
 
         /// <summary>An observable sequence of the characters received from the serial port.</summary>

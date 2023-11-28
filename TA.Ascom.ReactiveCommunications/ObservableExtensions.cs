@@ -129,45 +129,46 @@ namespace TA.Ascom.ReactiveCommunications
         /// </remarks>
         private static SerialDataReceivedEventHandler ReactiveDataReceivedEventHandler(ISerialPort port,
             IObserver<char> observer)
-            {
+        {
             var log = ServiceLocator.LogService;
             var receiveEventHandler = new SerialDataReceivedEventHandler((sender, e) =>
+            {
+                switch (e.EventType)
                 {
-                    switch (e.EventType)
+                    case SerialData.Eof:
+                        observer.OnCompleted();
+                        break;
+                    case SerialData.Chars:
+                        try
                         {
-                        case SerialData.Eof:
-                            observer.OnCompleted();
-                            break;
-                        case SerialData.Chars:
-                            try
-                                {
-                                byte[] inputByte = new byte[1];
-                                while (port.BytesToRead > 0)
-                                    {
-                                    inputByte[0] = (byte)port.ReadByte();
-                                    char[] inputUnicode = port.Encoding.GetChars(inputByte);
-                                    observer.OnNext(inputUnicode[0]);
-                                    }
-                                //Thread.Yield();
-                                }
-                            catch (InvalidOperationException ex)
-                                {
-                                log.Error()
-                                    .Message("The serial port may have closed while a transaction was waiting for data")
-                                    .Exception(ex)
-                                    .Write();
-                                observer.OnError(ex);
-                                }
-                            break;
-                        default:
-                            log.Warn()
-                                .Message("Ignoring unexpected serial data received event: {type}", e.EventType)
-                                .Write();
-                            break;
+                            var inputByte = new byte[1];
+                            while (port.BytesToRead > 0)
+                            {
+                                inputByte[0] = (byte)port.ReadByte();
+                                var inputUnicode = port.Encoding.GetChars(inputByte);
+                                observer.OnNext(inputUnicode[0]);
+                            }
+                            //Thread.Yield();
                         }
-                });
+                        catch (InvalidOperationException ex)
+                        {
+                            log.Error()
+                                .Message("The serial port may have closed while a transaction was waiting for data")
+                                .Exception(ex)
+                                .Write();
+                            observer.OnError(ex);
+                        }
+
+                        break;
+                    default:
+                        log.Warn()
+                            .Message("Ignoring unexpected serial data received event: {type}", e.EventType)
+                            .Write();
+                        break;
+                }
+            });
             return receiveEventHandler;
-            }
+        }
 
         /// <summary>
         ///     Produces a sequence of strings delimited by the specified <paramref name="terminator" />
