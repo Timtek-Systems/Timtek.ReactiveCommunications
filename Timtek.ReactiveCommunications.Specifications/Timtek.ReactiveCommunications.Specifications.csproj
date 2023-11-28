@@ -42,13 +42,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageReference Include="Machine.Specifications.Runner.VisualStudio" Version="2.10.2" />
     <PackageReference Include="Machine.Specifications.Should" Version="1.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
-    <PackageReference Include="TA.Utils.Core" Version="2.2.0" />
-    <PackageReference Include="TA.Utils.Logging.Nlog" Version="2.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+    <PackageReference Include="TA.Utils.Core" Version="2.3.0-console-logger.3" />
+    <PackageReference Include="TA.Utils.Logging.Nlog" Version="2.3.0-console-logger.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Timtek.ReactiveCommunications\Timtek.ReactiveCommunications.csproj" />

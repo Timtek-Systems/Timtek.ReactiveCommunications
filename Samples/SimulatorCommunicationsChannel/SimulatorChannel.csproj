@@ -12,7 +12,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Reactive" Version="6.0.0" />
-    <PackageReference Include="TA.Utils.Core" Version="2.2.0" />
+    <PackageReference Include="TA.Utils.Core" Version="2.3.0-console-logger.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Timtek.ReactiveCommunications\Timtek.ReactiveCommunications.csproj" />

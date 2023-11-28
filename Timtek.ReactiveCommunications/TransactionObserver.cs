@@ -45,7 +45,8 @@ public class TransactionObserver : IObserver<DeviceTransaction>
         Contract.Requires(channel != null);
         this.channel = channel;
         observableReceiveSequence = channel.ObservableReceivedCharacters.Publish();
-        log.Info().Message($"Transaction pipeline connected to channel with endpoint {channel.Endpoint}").Write();
+        log.Info().Message("Transaction pipeline connected to channel with endpoint {endpoint}", channel.Endpoint)
+            .Write();
     }
 
     /// <summary>Gets a value indicating whether the receiver is ready.</summary>
@@ -127,13 +128,15 @@ public class TransactionObserver : IObserver<DeviceTransaction>
                 .Write();
         log.Info()
             .Transaction(transaction)
-            .Message("Transaction {id} completed", transaction.TransactionId);
+            .Message("Transaction {id} completed", transaction.TransactionId)
+            .Write();
         transactionsInFlight = Interlocked.Decrement(ref activeTransactions);
         if (transactionsInFlight != 0)
         {
             // This should never happen and if it does then we have a serious concurrency bug
             log.Error()
-                .Message("Detected transaction overlap after completing {transaction}", transaction);
+                .Message("Detected transaction overlap after completing {transaction}", transaction)
+                .Write();
             throw new InvalidOperationException(
                                                 "Detected transaction overlap, please report this as an issue on GitHub and include your log file");
         }

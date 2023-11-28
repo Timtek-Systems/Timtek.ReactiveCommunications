@@ -58,12 +58,12 @@ public class ChannelFactory
     public ICommunicationChannel FromConnectionString(string connection)
     {
         Contract.Requires(!string.IsNullOrEmpty(connection));
-        log.Info().Message("Creating channel from connection string {connection}", connection);
+        log.Info().Message("Creating channel from connection string {connection}", connection).Write();
         var deviceBuilder = ChannelBuilderForConnectionString(connection);
         var endpoint = deviceBuilder.EndpointFromConnectionString(connection);
-        log.Debug().Message("Using endpoint type {endpoint}", endpoint.GetType());
+        log.Debug().Message("Using endpoint type {endpoint}", endpoint.GetType()).Write();
         var channel = deviceBuilder.ChannelFromEndpoint(endpoint);
-        log.Debug().Message("Using channel type {channel}", channel.GetType());
+        log.Debug().Message("Using channel type {channel}", channel.GetType()).Write();
         return channel;
     }
 

@@ -78,7 +78,7 @@ public class SerialCommunicationChannel : ICommunicationChannel
     /// <summary>Disconnects the serial port and closes the channel.</summary>
     public void Close()
     {
-        log.Info().Message("Channel closing => {endpoint}", endpoint);
+        log.Info().Message("Channel closing => {endpoint}", endpoint).Write();
         receiverListening?.Dispose(); // Disconnects the serial event handlers
         Port.Close();
     }
@@ -87,7 +87,7 @@ public class SerialCommunicationChannel : ICommunicationChannel
     /// <param name="txData">The data to be transmitted.</param>
     public virtual void Send(string txData)
     {
-        log.Debug().Message("Sending [{txdata}]", txData.ExpandAscii());
+        log.Debug().Message("Sending [{txdata}]", txData.ExpandAscii()).Write();
         Port.Write(txData);
     }
 

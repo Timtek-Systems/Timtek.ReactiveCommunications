@@ -40,11 +40,11 @@ and just needs to save a "connection string" in settings to recreate the correct
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="JetBrains.Annotations" Version="2023.2.0" />
-    <PackageReference Include="System.IO.Ports" Version="7.0.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
-    <PackageReference Include="TA.Utils.Core" Version="2.2.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+    <PackageReference Include="TA.Utils.Core" Version="2.3.0-console-logger.3" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\images\NuGet-Package-Icon.png">
