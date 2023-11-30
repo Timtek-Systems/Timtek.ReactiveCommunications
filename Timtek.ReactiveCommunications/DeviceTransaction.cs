@@ -38,6 +38,7 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
 
     private readonly ManualResetEvent completion;
     private readonly ManualResetEvent hot;
+    protected string command;
 
     /// <summary>Initializes a new instance of the <see cref="DeviceTransaction" /> class.</summary>
     /// <param name="command">The command to be sent to the communications channel.</param>
@@ -51,7 +52,7 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
         TransactionId = GenerateTransactionId();
         Response = Maybe<string>.Empty;
         ErrorMessage = Maybe<string>.Empty;
-        Command = command;
+        this.command = command;
         Timeout = TimeSpan.FromSeconds(10); // Wait effectively forever by default
         HotTimeout = TimeSpan.FromSeconds(10);
         completion = new ManualResetEvent(false); // Not signalled by default
@@ -68,12 +69,14 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
     public long TransactionId { get; }
 
     /// <summary>
-    ///     Gets or sets the command string. The command must be in a format ready for sending to a
+    ///     Gets the command string. The command must be in a format ready for sending to a
     ///     transport provider. In other words, commands are 'Layer 7', we are talking directly to the
-    ///     command interpreter inside the target device.
+    ///     command interpreter inside the target device. Can be overridden in derived classes to add any necessary
+    ///     encapsulation processing (such as checksum computation).
     /// </summary>
     /// <value>The command string as expected by the command interpreter in the remote device.</value>
-    public string Command { get; }
+    /// <remarks>Declared virtual so that derived transactions can insert any encapsulation processing needed.</remarks>
+    public virtual string Command => command;
 
     /// <summary>
     ///     Gets or sets the time that the command can be pending before it is considered to have failed.
