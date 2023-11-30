@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vcs-root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="0c1d95d4-05a2-4bc4-a590-769d1cf3ecad" type="jetbrains.git" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2021.1/project-config.xsd">
+  <name>https://github.com/Tigra-Astronomy/TA.ReactiveCommunications</name>
+  <param name="agentCleanFilesPolicy" value="ALL_UNTRACKED" />
+  <param name="agentCleanPolicy" value="ON_BRANCH_CHANGE" />
+  <param name="authMethod" value="PASSWORD" />
+  <param name="branch" value="refs/heads/develop" />
+  <param name="ignoreKnownHosts" value="true" />
+  <param name="secure:password" value="credentialsJSON:0a200711-bfac-4e0a-9957-f047498ee599" />
+  <param name="submoduleCheckout" value="CHECKOUT" />
+  <param name="teamcity:branchSpec"><![CDATA[+:refs/heads/(main)
++:refs/heads/(master)
++:refs/heads/(develop)
++:refs/heads/(feature/*)
++:refs/heads/(hotfix/*)
++:refs/heads/(bugfix/*)
++:refs/heads/(support/*)
++:refs/heads/(release/*)]]></param>
+  <param name="url" value="https://github.com/Tigra-Astronomy/TA.ReactiveCommunications" />
+  <param name="useAlternates" value="AUTO" />
+  <param name="username" value="NameOfTheDragon" />
+  <param name="usernameStyle" value="USERID" />
+</vcs-root>
+

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="acf1cc47-bacc-4637-967f-38c27d8cefc8" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2021.1/project-config.xsd">
+  <name>Windows .net</name>
+  <description />
+  <settings>
+    <options>
+      <option name="allowExternalStatus" value="true" />
+      <option name="artifactRules" value="**/bin =&gt; **/bin&#xA;NuGet-Packages =&gt; NuGet-Packages" />
+    </options>
+    <parameters>
+      <param name="env.Git_Branch" value="%teamcity.build.vcs.branch.TimOss_TaReactiveCommunications_GithubTimtekSystemsTimtekReactiveCommunications%" />
+      <param name="system.GitVersion.FullSemVer" value="0.0.0-undefined" />
+    </parameters>
+    <build-runners>
+      <runner id="RUNNER_12" name="Compute Semantic Version" type="dotnet">
+        <parameters>
+          <param name="args" value="gitversion -output buildServer" />
+          <param name="command" value="custom" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_9" name="dotnet restore" type="dotnet">
+        <parameters>
+          <param name="command" value="restore" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="paths" value="Timtek.ReactiveCommunications.sln" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_11" name="dotnet build" type="dotnet">
+        <parameters>
+          <param name="command" value="build" />
+          <param name="configuration" value="%Configuration%" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="paths" value="Timtek.ReactiveCommunications.sln" />
+          <param name="required.sdk" value="3.1" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_18" name="Unit Test" type="dotnet">
+        <parameters>
+          <param name="command" value="test" />
+          <param name="configuration" value="%Configuration%" />
+          <param name="dotNetCoverage.dotCover.filters" value="-:*.Specifications" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="paths" value="Timtek.ReactiveCommunications.Specifications/Timtek.ReactiveCommunications.Specifications.csproj" />
+          <param name="skipBuild" value="true" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_24" name="dotnet pack" type="dotnet">
+        <parameters>
+          <param name="command" value="pack" />
+          <param name="configuration" value="%Configuration%" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="outputDir" value="NuGet-Packages" />
+          <param name="paths" value="Timtek.ReactiveCommunications/Timtek.ReactiveCommunications.csproj" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_25" name="Publish to TeamCity Nuget feed" type="jb.nuget.publish">
+        <parameters>
+          <param name="nuget.path" value="%teamcity.tool.NuGet.CommandLine.DEFAULT%" />
+          <param name="nuget.publish.files" value="NuGet-Packages/*" />
+          <param name="nuget.publish.source" value="%teamcity.nuget.feed.httpAuth.TimOss.OSS.v3%" />
+          <param name="nuget.push.commandline" value="-SkipDuplicate" />
+          <param name="secure:nuget.api.key" value="credentialsJSON:fbc1df07-7cbe-4c71-a39c-9081972b63ab" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_30" name="Publish to TA MyGet" type="jb.nuget.publish">
+        <parameters>
+          <param name="nuget.path" value="%teamcity.tool.NuGet.CommandLine.DEFAULT%" />
+          <param name="nuget.publish.files" value="NuGet-Packages/*.nupkg" />
+          <param name="nuget.publish.source" value="https://www.myget.org/F/tigra-astronomy/api/v2/package" />
+          <param name="secure:nuget.api.key" value="credentialsJSON:6c9135b2-b15d-4c3a-823f-7e923ef336a1" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <vcs-settings>
+      <vcs-entry-ref root-id="TimOss_TaReactiveCommunications_GithubTimtekSystemsTimtekReactiveCommunications" />
+    </vcs-settings>
+    <requirements>
+      <contains id="RQ_5" name="env.OS" value="Windows_NT" />
+    </requirements>
+    <build-triggers>
+      <build-trigger id="TRIGGER_6" type="vcsTrigger">
+        <parameters>
+          <param name="branchFilter" value="+:*" />
+          <param name="perCheckinTriggering" value="true" />
+          <param name="quietPeriodMode" value="USE_DEFAULT" />
+        </parameters>
+      </build-trigger>
+    </build-triggers>
+    <build-extensions>
+      <extension id="perfmon" type="perfmon">
+        <parameters>
+          <param name="teamcity.perfmon.feature.enabled" value="true" />
+        </parameters>
+      </extension>
+      <extension id="swabra" type="swabra">
+        <parameters>
+          <param name="swabra.enabled" value="swabra.before.build" />
+          <param name="swabra.processes" value="report" />
+          <param name="swabra.strict" value="true" />
+        </parameters>
+      </extension>
+      <extension id="BUILD_EXT_6" type="commit-status-publisher">
+        <parameters>
+          <param name="github_authentication_type" value="vcsRoot" />
+          <param name="github_host" value="https://api.github.com" />
+          <param name="publisherId" value="githubStatusPublisher" />
+        </parameters>
+      </extension>
+      <extension id="jetbrains.agent.free.space" type="jetbrains.agent.free.space">
+        <parameters>
+          <param name="free-space-fail-start" value="true" />
+          <param name="free-space-work" value="20gb" />
+        </parameters>
+      </extension>
+      <extension id="InvestigationsAutoAssigner" type="InvestigationsAutoAssigner">
+        <parameters>
+          <param name="defaultAssignee.username" value="tim" />
+        </parameters>
+      </extension>
+      <extension id="BUILD_EXT_7" type="pullRequests">
+        <parameters>
+          <param name="authenticationType" value="vcsRoot" />
+          <param name="filterAuthorRole" value="EVERYBODY" />
+          <param name="filterTargetBranch"><![CDATA[+:refs/heads/develop
++:refs/heads/master]]></param>
+          <param name="ignoreDrafts" value="true" />
+          <param name="providerType" value="github" />
+          <param name="vcsRootId" value="TimOss_TaReactiveCommunications_GithubTimtekSystemsTimtekReactiveCommunications" />
+        </parameters>
+      </extension>
+      <extension id="BUILD_EXT_8" type="VcsLabeling">
+        <parameters>
+          <param name="labelingPattern" value="build-%system.build.number%" />
+          <param name="successfulOnly" value="true" />
+          <param name="vcsRootId" value="TimOss_Ta_HttpsGithubComTigraAstronomyTaReactiveCommunications" />
+        </parameters>
+      </extension>
+    </build-extensions>
+    <cleanup />
+  </settings>
+</build-type>
+
