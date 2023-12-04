@@ -32,30 +32,31 @@ public static class ObservableDiagnosticExtensions
             var subscriptionId = ++id; // closure
             var sequenceName = name; // closure
 
-            WriteTraceOutput("Subscribe", "");
+            WriteTraceOutput(sequenceName, subscriptionId, "Subscribe", "");
             var disposable = source.Subscribe(
                                               v =>
                                               {
-                                                  WriteTraceOutput("OnNext", v.ToString().ExpandAscii());
+                                                  WriteTraceOutput(sequenceName, subscriptionId, "OnNext",
+                                                      v.ToString().ExpandAscii());
                                                   observer.OnNext(v);
                                               },
                                               e =>
                                               {
-                                                  WriteTraceOutput("OnError", "");
+                                                  WriteTraceOutput(sequenceName, subscriptionId, "OnError", "");
                                                   observer.OnError(e);
                                               },
                                               () =>
                                               {
-                                                  WriteTraceOutput("OnCompleted", "");
+                                                  WriteTraceOutput(sequenceName, subscriptionId, "OnCompleted", "");
                                                   observer.OnCompleted();
                                               });
             return () =>
             {
-                WriteTraceOutput("Dispose", "");
+                WriteTraceOutput(sequenceName, subscriptionId, "Dispose", "");
                 disposable.Dispose();
             };
 
-            void WriteTraceOutput(string action, object content)
+            void WriteTraceOutput(string sequenceName, int subscriptionId, string action, object content)
             {
                 log.Trace(sourceNameOverride: "RxComms")
                     .Message("{source}[{id}]: {action}({content})",
