@@ -58,11 +58,11 @@ public static class ObservableDiagnosticExtensions
             void WriteTraceOutput(string action, object content)
             {
                 log.Trace(sourceNameOverride: "RxComms")
-                    .Message("{@source}[{id}]: {@action}({@content})",
-                             sequenceName,
-                             subscriptionId,
-                             action,
-                             content)
+                    .Message("{source}[{id}]: {action}({content})",
+                        sequenceName,
+                        subscriptionId,
+                        action,
+                        content)
                     .Write();
             }
         });
