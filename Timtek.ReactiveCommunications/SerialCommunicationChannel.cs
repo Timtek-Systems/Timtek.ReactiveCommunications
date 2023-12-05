@@ -45,7 +45,10 @@ public class SerialCommunicationChannel : ICommunicationChannel
             .Publish();
     }
 
-    internal ISerialPort Port { get; set; }
+    /// <summary>
+    ///     The underlying serial port instance.
+    /// </summary>
+    protected internal ISerialPort Port { get; set; }
 
     /// <summary>Configures the serial port and opens the channel ready for transmitting.</summary>
     public void Open()
