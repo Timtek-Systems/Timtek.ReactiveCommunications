@@ -6,5 +6,6 @@ branches:
     tag: ''
 ignore:
   sha: []
-merge-message-formats: {}
+merge-message-formats: { }
 update-build-number: true
+commit-message-incrementing: Enabled
