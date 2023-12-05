@@ -102,19 +102,14 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
     /// <value>The response string.</value>
     public Maybe<string> Response { get; protected set; }
 
-    /// <summary>Gets an indication that the transaction has failed.</summary>
+    /// <summary>
+    ///     Gets an indication that the transaction has failed. This property should not be relied upon until the transaction
+    ///     is known to have completed,
+    ///     e.g. by calling transaction.<see cref="WaitForCompletionOrTimeout" />.
+    /// </summary>
     /// <value><c>true</c> if failed; otherwise, <c>false</c>.</value>
     /// <seealso cref="OnError" />
-    /// <exception cref="InvalidOperationException" accessor="get">thrown if accessed before the transaction is fully complete.</exception>
-    public bool Failed
-    {
-        get
-        {
-            if (Completed)
-                return State == TransactionLifecycle.Failed;
-            throw new InvalidOperationException(failedBeforeCompletionMessage);
-        }
-    }
+    public bool Failed => State == TransactionLifecycle.Failed;
 
     /// <summary>
     ///     Gets the error message for a failed transaction. The response is wrapped in a
@@ -129,21 +124,11 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
 
     /// <summary>
     ///     Indicates whether a transaction has completed successfully. Note: this is subtly different from
-    ///     <c>!Failed</c>
+    ///     <c>!Failed</c>. This property should not be relied upon until the transaction is known to have completed,
+    ///     e.g. by calling transaction.<see cref="WaitForCompletionOrTimeout" />.
     /// </summary>
     /// <seealso cref="State" />
-    /// <exception cref="InvalidOperationException" accessor="get">
-    ///     thrown if accessed before the transaction is fully completed.
-    /// </exception>
-    public bool Successful
-    {
-        get
-        {
-            if (Completed)
-                return State == TransactionLifecycle.Completed;
-            throw new InvalidOperationException(successBeforeCompletionMessage);
-        }
-    }
+    public bool Successful => State == TransactionLifecycle.Completed;
 
     /// <summary>
     ///     Indicates whether the transaction is completed. A completed transaction could either have

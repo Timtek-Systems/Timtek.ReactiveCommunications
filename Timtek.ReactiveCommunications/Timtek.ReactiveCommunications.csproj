@@ -44,7 +44,7 @@ and just needs to save a "connection string" in settings to recreate the correct
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
-    <PackageReference Include="TA.Utils.Core" Version="2.3.0-console-logger.3" />
+    <PackageReference Include="TA.Utils.Core" Version="2.3.0" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\images\NuGet-Package-Icon.png">
