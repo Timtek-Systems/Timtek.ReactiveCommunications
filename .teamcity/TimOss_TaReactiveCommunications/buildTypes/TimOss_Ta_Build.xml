@@ -14,7 +14,7 @@
     <build-runners>
       <runner id="RUNNER_12" name="Compute Semantic Version" type="dotnet">
         <parameters>
-          <param name="args" value="gitversion /output buildServer /nofetch /nocache /showconfig" />
+          <param name="args" value="gitversion /output buildServer /nocache /showconfig" />
           <param name="command" value="custom" />
           <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
           <param name="teamcity.step.mode" value="default" />
