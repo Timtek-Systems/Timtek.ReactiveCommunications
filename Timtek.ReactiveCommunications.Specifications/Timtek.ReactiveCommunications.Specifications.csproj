@@ -37,7 +37,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FakeItEasy" Version="7.4.0" />
+    <PackageReference Include="FakeItEasy" Version="8.0.0" />
     <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -47,8 +47,8 @@
     <PackageReference Include="Machine.Specifications.Should" Version="1.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
-    <PackageReference Include="TA.Utils.Core" Version="2.3.0-console-logger.3" />
-    <PackageReference Include="TA.Utils.Logging.Nlog" Version="2.3.0-console-logger.3" />
+    <PackageReference Include="TA.Utils.Core" Version="2.3.0" />
+    <PackageReference Include="TA.Utils.Logging.Nlog" Version="2.3.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Timtek.ReactiveCommunications\Timtek.ReactiveCommunications.csproj" />
