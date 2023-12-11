@@ -203,19 +203,10 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
     ///     A cancellation token that can cancel the task. Note that this does not cancel the transaction
     ///     (these cannot be cancelled once committed).
     /// </param>
-    /// <returns>Task&lt;System.Boolean&gt;.</returns>
+    /// <returns>Task{bool} that indicates completion if true, or timeout if false.</returns>
     public Task<bool> WaitForCompletionOrTimeoutAsync(CancellationToken cancellation)
     {
-        Contract.Ensures(Contract.Result<Task<bool>>() != null);
-        return Task.Run(() =>
-                        {
-                            if (!WaitUntilHotOrTimeout()) return false;
-                            var signalled = WaitHandle.WaitAny(new[] { completion, cancellation.WaitHandle }, Timeout)
-                                            == 0;
-                            cancellation.ThrowIfCancellationRequested();
-                            return signalled;
-                        },
-                        cancellation);
+        return Task.Run(WaitForCompletionOrTimeout, cancellation);
     }
 
     private void SignalCompletion()
