@@ -25,7 +25,7 @@ public static class ObservableDiagnosticExtensions
     /// <param name="name">The name emitted in trace output for this source.</param>
     public static IObservable<TSource> Trace<TSource>(this IObservable<TSource> source, string name)
     {
-        var log = ServiceLocator.LogService;
+        var log = ServiceLocator.LogService.WithName("RxComms");
         var id = 0;
         return Observable.Create<TSource>(observer =>
         {
@@ -56,16 +56,11 @@ public static class ObservableDiagnosticExtensions
                 disposable.Dispose();
             };
 
-            void WriteTraceOutput(string sequenceName, int subscriptionId, string action, object content)
-            {
-                log.Trace(sourceNameOverride: "RxComms")
-                    .Message("{source}[{id}]: {action}({content})",
-                        sequenceName,
-                        subscriptionId,
-                        action,
-                        content)
+            void WriteTraceOutput(string sequence, int subscription, string action, object content) =>
+                log.Trace(10)
+                    .Message("{sequence}[{subscription}]: {action}({content})",
+                        sequence, subscription, action, content)
                     .Write();
-            }
         });
     }
 }
