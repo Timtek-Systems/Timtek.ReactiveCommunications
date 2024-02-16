@@ -90,7 +90,7 @@
         <parameters>
           <param name="branchFilter" value="+:*" />
           <param name="perCheckinTriggering" value="true" />
-          <param name="quietPeriodMode" value="USE_DEFAULT" />
+          <param name="quietPeriodMode" value="DO_NOT_USE" />
         </parameters>
       </build-trigger>
     </build-triggers>
