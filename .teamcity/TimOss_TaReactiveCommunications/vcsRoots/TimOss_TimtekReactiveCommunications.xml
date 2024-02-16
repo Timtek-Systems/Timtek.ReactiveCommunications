@@ -8,7 +8,13 @@
   <param name="ignoreKnownHosts" value="true" />
   <param name="secure:password" value="credentialsJSON:99dfcde5-da44-481a-82c8-523fd00bf237" />
   <param name="submoduleCheckout" value="CHECKOUT" />
-  <param name="teamcity:branchSpec" value="+:refs/heads/*" />
+  <param name="teamcity:branchSpec"><![CDATA[+:refs/heads/(develop)
++:refs/heads/(master)
++:refs/heads/(main)
++:refs/heads/(hotfix/*)
++:refs/heads/(release/*)
++:refs/heads/(feature/*)
++:refs/heads/(bugfix/*)]]></param>
   <param name="url" value="https://github.com/Timtek-Systems/Timtek.ReactiveCommunications" />
   <param name="useAlternates" value="AUTO" />
   <param name="username" value="NameOfTheDragon" />
