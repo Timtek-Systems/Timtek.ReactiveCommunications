@@ -2,6 +2,8 @@
 
 ![Reactive ASCOM logo](images/RxComms-520x520.png)
 
+Feb 2024
+
 **Reactive Communications** is a class library and an object-oriented design pattern for handling device communications. We will explain what it is, explain the key concepts and then provide a code example.
 
 ## TL;DR - Quick start
