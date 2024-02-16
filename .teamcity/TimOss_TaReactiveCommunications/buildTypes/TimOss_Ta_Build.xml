@@ -8,7 +8,7 @@
       <option name="artifactRules" value="**/bin =&gt; **/bin&#xA;NuGet-Packages =&gt; NuGet-Packages" />
     </options>
     <parameters>
-      <param name="env.Git_Branch" value="%teamcity.build.vcs.branch.TimOss_TaReactiveCommunications_GithubTimtekSystemsTimtekReactiveCommunications%" />
+      <param name="env.Git_Branch" value="%teamcity.build.vcs.branch.TimOss_TimtekReactiveCommunications%" />
       <param name="system.GitVersion.FullSemVer" value="0.0.0-undefined" />
     </parameters>
     <build-runners>
@@ -80,7 +80,7 @@
       </runner>
     </build-runners>
     <vcs-settings>
-      <vcs-entry-ref root-id="TimOss_TaReactiveCommunications_GithubTimtekSystemsTimtekReactiveCommunications" />
+      <vcs-entry-ref root-id="TimOss_TimtekReactiveCommunications" />
     </vcs-settings>
     <requirements>
       <contains id="RQ_5" name="env.OS" value="Windows_NT" />
@@ -133,7 +133,7 @@
 +:refs/heads/master]]></param>
           <param name="ignoreDrafts" value="true" />
           <param name="providerType" value="github" />
-          <param name="vcsRootId" value="TimOss_TaReactiveCommunications_GithubTimtekSystemsTimtekReactiveCommunications" />
+          <param name="vcsRootId" value="TimOss_TimtekReactiveCommunications" />
         </parameters>
       </extension>
       <extension id="BUILD_EXT_8" type="VcsLabeling">
