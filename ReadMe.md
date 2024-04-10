@@ -124,6 +124,24 @@ Once an instance is created (specifying any rate limit in the constructor), the 
 
 Thereafter, transactions are executed by calling `ReactiveTransactionProcessor.CommitTransaction()`.
 
+## Best Practices
+
+With experience of using the library in many different projects, we have gained insights into useful usage patterns.
+
+### Object Lifetime Management
+
+Management of object lifetimes is probably the biggest class of difficulty we have encountered.
+It is particularly easy in .NET to let object instances get out of control, because the user has the expectation that the Garbage Collector will take care of everything. However, we have found that where there are publish/subscribe relationships between objects, it becomes important to manage these subscriptions carefully.
+
+In RxComms, `ICommunicationChannel`, `ITransactionProcessor` and `TransactionObserver` are a triad of collaborating objects with subscriptions between them. We have found that it is advisable to treat these as a matched set with identical object lifetimes. We recommend creating the objects right before opening a connection to a device, and disposing them all right after closing the connection. This ensures that any inter-object subscriptions are cleaned up correctly, and that the underlying communications device is correctly opened, closed and cleaned up.
+
+Therefore, the only object that needs to persist across connections is the connection string, and even this might be built on demand from application settings.
+
+We typically add `Open()` and `Close()` methods in our comms class.
+
+- the `Open()` method creates the object triad and opens the channel;
+- the `Close()` method closes the channel and disposes the object triad.
+
 
   [project]: http://tigra-astronomy.com/reactive-communications-for-ascom "Project Page"
   [rx]: https://rx.codeplex.com/ "Rx Project"

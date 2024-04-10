@@ -14,6 +14,8 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using JetBrains.Annotations;
+using TA.Utils.Core.Diagnostics;
 
 namespace Timtek.ReactiveCommunications;
 
@@ -23,12 +25,19 @@ namespace Timtek.ReactiveCommunications;
 /// </summary>
 public class ReactiveTransactionProcessor : ITransactionProcessor, IDisposable
 {
+    [CanBeNull] private readonly ILog log;
     private IDisposable subscriptionDisposer;
 
     /// <summary>
+    ///     Create and initialise a new transaction processor.
+    /// </summary>
+    /// <param name="log">Optional - a logging service.</param>
+    public ReactiveTransactionProcessor([CanBeNull] ILog log = null) => this.log = log ?? new DegenerateLoggerService();
+
+    /// <summary>
     ///     Commits a transaction. That is, submits it for execution with no way to cancel. From this
-    ///     point, the transaction will either succeed in which case it will contain a valid response, (
-    ///     <c>Response.Any() == true</c>) or it will fail, in which case the response will not have a
+    ///     point, the transaction will either succeed in which case it will contain a valid response,
+    ///     (<c>Response.Any() == true</c>) or it will fail, in which case the response will not have a
     ///     value ( <see cref="Maybe{T}.Empty" /> or <c>Response.Any() == false</c>).
     /// </summary>
     /// <param name="transaction">The transaction to be processed.</param>
@@ -57,9 +66,26 @@ public class ReactiveTransactionProcessor : ITransactionProcessor, IDisposable
     /// </remarks>
     /// <param name="observer">The transaction observer.</param>
     /// <param name="rateLimit">The minimum amount of time that must elapse between transactions.</param>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown if an attempt is made to create more than one TransactionObserver
+    ///     subscription.
+    /// </exception>
     public void SubscribeTransactionObserver(TransactionObserver observer, TimeSpan? rateLimit = null)
     {
         Contract.Requires(observer != null);
+        if (subscriptionDisposer is not null)
+        {
+            var message =
+                "You are creating a duplicate subscription between the Transaction Processor and the Transaction Observer.\n"
+                + "This would create a situation where multiple overlapping transactions can occur on the same channel, and this is not allowed.\n"
+                + "You should always Dispose your transaction processor when a connection is closed and create a new one when a connection is opened.\n"
+                + "This will ensure that old subscriptions are correctly cleaned up.\n"
+                + "Best-practice is to create a new ITransactionProcessor, ICommunicationChannel and TransactionObserver as a matched set each time you open a connection,"
+                + "and to dispose them all as a matched set when you close the connection.";
+            log.Error().Message(message).Write();
+            throw new InvalidOperationException(message);
+        }
+
         var observable = Observable.FromEventPattern<TransactionAvailableEventArgs>(
                                                                                     handler => TransactionAvailable += handler,
                                                                                     handler => TransactionAvailable -= handler)
