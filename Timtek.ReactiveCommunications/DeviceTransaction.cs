@@ -61,12 +61,29 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
     }
 
     /// <summary>
+    ///     Reset a transaction so that it can be re-used (useful for automatic re-try).
+    ///     A new <see cref="TransactionId" /> will be generated;
+    ///     The <see cref="ErrorMessage" /> will be cleared;
+    ///     The <see cref="Response" /> will be cleared;
+    ///     The <see cref="State" /> will be reset to <see cref="TransactionLifecycle.Created" />.
+    ///     The <see cref="Command" /> and <see cref="Timeout" /> values will be preserved.
+    ///     May be overridden in derived transaction classes.
+    /// </summary>
+    public virtual void Reset()
+    {
+        TransactionId = GenerateTransactionId();
+        ErrorMessage = Maybe<string>.Empty;
+        Response = Maybe<string>.Empty;
+        State = TransactionLifecycle.Created;
+    }
+
+    /// <summary>
     ///     Gets the transaction identifier of the transaction. Used to match responses to commands where
     ///     the protocol supports multiple overlapping commands and for logging and statistics gathering.
     ///     Each command must have a unique transaction Id.
     /// </summary>
     /// <value>The transaction identifier.</value>
-    public long TransactionId { get; }
+    public long TransactionId { get; private set; }
 
     /// <summary>
     ///     Gets the command string. The command must be in a format ready for sending to a
