@@ -131,7 +131,7 @@ With experience of using the library in many different projects, we have gained 
 ### Object Lifetime Management
 
 Management of object lifetimes is probably the biggest class of difficulty we have encountered.
-It is particularly easy in .NET to let object instances get out of control, because the user has the expectation that the Garbage Collector will take care of everything. However, we have found that where there are publish/subscribe relationships between objects, it becomes important to manage these subscriptions carefully.
+It is particularly easy in .NET to let object instances get out of control, because the user has the expectation that the Garbage Collector will take care of everything. However, we have found that where there are publish/subscribe relationships between objects, it becomes important to manage these subscriptions explicitly.
 
 In RxComms, `ICommunicationChannel`, `ITransactionProcessor` and `TransactionObserver` are a triad of collaborating objects with subscriptions between them. We have found that it is advisable to treat these as a matched set with identical object lifetimes. We recommend creating the objects right before opening a connection to a device, and disposing them all right after closing the connection. This ensures that any inter-object subscriptions are cleaned up correctly, and that the underlying communications device is correctly opened, closed and cleaned up.
 
@@ -141,6 +141,12 @@ We typically add `Open()` and `Close()` methods in our comms class.
 
 - the `Open()` method creates the object triad and opens the channel;
 - the `Close()` method closes the channel and disposes the object triad.
+
+## Release Notes
+
+2.2.0
+  : Minor logging changes to force transactions to render using `Transaction.ToString()`.
+  : Made serial port opening and closing idempotent.
 
 
   [project]: http://tigra-astronomy.com/reactive-communications-for-ascom "Project Page"
