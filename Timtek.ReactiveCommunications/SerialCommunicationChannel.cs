@@ -54,6 +54,7 @@ public class SerialCommunicationChannel : ICommunicationChannel
     public void Open()
     {
         log.Info().Message("Channel opening => {endpoint}", endpoint).Write();
+        if (IsOpen) return; // Opening a channel should be idempotent, i.e. opening it twice should not cause an error.
         Port.PortName = endpoint.PortName;
         Port.BaudRate = endpoint.BaudRate;
         Port.Parity = endpoint.Parity;
@@ -72,7 +73,6 @@ public class SerialCommunicationChannel : ICommunicationChannel
          * as 'ß' in UTF-8.
          */
         Port.Encoding = endpoint.Encoding;
-        //ToDo: magic number. Allow this to be specified rather than hard coded.
         Port.Open();
         if (IsOpen)
             receiverListening = observableReceiveSequence.Connect();
@@ -83,7 +83,8 @@ public class SerialCommunicationChannel : ICommunicationChannel
     {
         log.Info().Message("Channel closing => {endpoint}", endpoint).Write();
         receiverListening?.Dispose(); // Disconnects the serial event handlers
-        Port.Close();
+        if (Port.IsOpen)
+            Port.Close();
     }
 
     /// <summary>Sends the specified data and returns immediately without waiting for a reply.</summary>

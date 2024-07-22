@@ -59,11 +59,11 @@ public class TransactionObserver : IObserver<DeviceTransaction>
     public void OnNext(DeviceTransaction transaction)
     {
         log.Info()
-            .Message("Committing transaction {transaction}", transaction)
+            .Message("Committing transaction {$transaction}", transaction)
             .Write();
         CommitTransaction(transaction);
         log.Info()
-            .Message("Completed transaction {transaction}", transaction)
+            .Message("Completed transaction {$transaction}", transaction)
             .Write();
     }
 
@@ -104,7 +104,7 @@ public class TransactionObserver : IObserver<DeviceTransaction>
         {
             // This should never happen and if it does then we have a serious concurrency bug
             log.Error()
-                .Message("Detected transaction overlap before committing {transaction}", transaction)
+                .Message("Detected transaction overlap before committing {$transaction}", transaction)
                 .Write();
             throw new InvalidOperationException("Detected transaction overlap");
         }
@@ -135,7 +135,7 @@ public class TransactionObserver : IObserver<DeviceTransaction>
         {
             // This should never happen and if it does then we have a serious concurrency bug
             log.Error()
-                .Message("Detected transaction overlap after completing {transaction}", transaction)
+                .Message("Detected transaction overlap after completing {$transaction}", transaction)
                 .Write();
             throw new InvalidOperationException(
                                                 "Detected transaction overlap, please report this as an issue on GitHub and include your log file");

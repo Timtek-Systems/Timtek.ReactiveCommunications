@@ -14,7 +14,6 @@ using System;
 using FakeItEasy;
 using Machine.Specifications;
 using Timtek.ReactiveCommunications.Specifications.Contexts;
-using Timtek.ReactiveCommunications;
 
 // ReSharper disable ComplexConditionExpression
 
@@ -43,11 +42,12 @@ namespace Timtek.ReactiveCommunications.Specifications
         It should_throw_argument_exception = () => Thrown.ShouldBeOfExactType<ArgumentException>();
         }
 
-    [Subject(typeof(SerialCommunicationChannel), "Connecting")]
-    public class when_the_serial_channel_is_opened :
-        with_serial_channel_on_endpoint_com1_9600_n_8_1_and_mock_serial_port
+        [Subject(typeof(SerialCommunicationChannel), "Connecting")]
+        public class when_the_serial_channel_is_opened :
+            with_serial_channel_on_endpoint_com1_9600_n_8_1_and_mock_serial_port
         {
-        Because of = () => Channel.Open();
+            Establish context = () => A.CallTo(() => MockPort.IsOpen).Returns(false); // The port starts closed.
+            Because of = () => Channel.Open();
         It should_configure_the_port_with_the_expected_baud_rate =
             () => Channel.Port.BaudRate.ShouldEqual(SerialEndpoint.BaudRate);
         It should_configure_the_port_with_the_expected_data_bits =

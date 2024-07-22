@@ -100,14 +100,14 @@ namespace TransactionalCommunicationModel
 
             // All set up and ready to go.
             try
-                {
+            {
                 // First we'll create a StatusTransaction and get the device's status.
                 var statusTransaction = new StatusTransaction();
                 transactionProcessor.CommitTransaction(statusTransaction);
                 statusTransaction.WaitForCompletionOrTimeout(); // There is also an async version
 
                 // If the transaction failed, log and throw TransactionException.
-                TransactionExtensions.ThrowIfFailed(statusTransaction, log);
+                statusTransaction.ThrowIfFailed(log);
 
                 // Now we can retrieve the results and use them.
                 // If the transaction succeeded, we should be assured of a valid result.
@@ -124,27 +124,27 @@ namespace TransactionalCommunicationModel
                 transactionProcessor.CommitTransaction(gpioTransaction);
                 gpioTransaction.WaitForCompletionOrTimeout();
 
-                TransactionExtensions.ThrowIfFailed(gpioTransaction, log);
+                gpioTransaction.ThrowIfFailed(log);
                 var newPinState = gpioTransaction.UserPins;
                 if (newPinState != gpioPinsToWrite)
                     throw new ApplicationException("Failed to write GPIO pins");
                 log.Info()
                     .Message("Successfully changed GPIO pins {oldState} => {newState}", gpioPins, newPinState)
                     .Write();
-                }
+            }
             catch (TransactionException exception)
-                {
+            {
                 log.Error().Exception(exception)
-                    .Message("Transaction failed {transaction}", exception.Transaction)
+                    .Message("Transaction failed {$transaction}", exception.Transaction)
                     .Write();
                 Console.WriteLine(exception);
-                }
+            }
             catch (ApplicationException exception)
-                {
+            {
                 log.Error().Message("Failed to set teh GPIO pins.").Exception(exception).Write();
-                }
+            }
             finally
-                {
+            {
                 /*
                  * We just need to dispose the transaction processor. This terminates the
                  * sequence of transactions, which causes the TransactionObserver's OnCompleted method
@@ -160,7 +160,7 @@ namespace TransactionalCommunicationModel
                  * This may take a few seconds if you are using a slow log target.
                  */
                 log.Shutdown();
-                }
+            }
             }
         }
     }
