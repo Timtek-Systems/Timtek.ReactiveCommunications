@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Reactive;
@@ -82,6 +83,27 @@ public static class ObservableExtensions
         });
     }
 
+    /// <summary>
+    ///     Create an observable sequence of characters from the specified serial port, with configurable EOF behaviour.
+    /// </summary>
+    /// <param name="port">The port that will be the data source.</param>
+    /// <param name="eofBehaviour">Specify how to handle the DataReceived event with type EOF.</param>
+    /// <returns><see cref="IObservable{Char}" /> - an observable sequence of characters.</returns>
+    /// <remarks>
+    ///     This code is based on a suggestion by Bart De Smet [MVP] at
+    ///     https://social.msdn.microsoft.com/Forums/en-US/5a12822d-92a6-4ff3-9a37-9bcce83dae0c/how-to-implement-serialport-parser-in-rx?forum=rx
+    ///     Bart's code correctly handles OnCompleted and OnError cases.
+    /// </remarks>
+    public static IObservable<char> ToObservableCharacterSequence(
+        this ISerialPort port,
+        EofBehaviour     eofBehaviour) =>
+        Observable.Create<char>(observer =>
+        {
+            port.DataReceived += ReactiveDataReceivedEventHandler(port, observer, eofBehaviour);
+            port.ErrorReceived += ReactiveErrorReceivedEventHandler(observer);
+            return UnsubscribeAction(port, observer);
+        });
+
     /// <summary>Returns an Action to be called when the observer unsubscribes.</summary>
     /// <param name="port">The port.</param>
     /// <param name="observer">The observer.</param>
@@ -127,8 +149,11 @@ public static class ObservableExtensions
     ///     eventually gets flushed into the input stream. Therefore, we use <c>Thread.Yield()</c> within
     ///     the receive loop to give other threads (including the serial port) a chance to run.
     /// </remarks>
-    private static SerialDataReceivedEventHandler ReactiveDataReceivedEventHandler(ISerialPort port,
-        IObserver<char>                                                                        observer)
+    private static SerialDataReceivedEventHandler ReactiveDataReceivedEventHandler(
+        ISerialPort     port,
+        IObserver<char> observer,
+        EofBehaviour    eofBehaviour = EofBehaviour.Complete // 
+    )
     {
         var log = ServiceLocator.LogService;
         var receiveEventHandler = new SerialDataReceivedEventHandler((sender, e) =>
@@ -136,16 +161,31 @@ public static class ObservableExtensions
             switch (e.EventType)
             {
                 case SerialData.Eof:
-                    observer.OnCompleted();
+                    if (eofBehaviour == EofBehaviour.Error)
+                    {
+                        log.Warn()
+                            .Message("SerialData.Eof received on port {port} – treating as error", port.PortName)
+                            .Write();
+                        observer.OnError(new EndOfStreamException(
+                            $"EOF received from serial port {port.PortName}"));
+                    }
+                    else
+                    {
+                        log.Info()
+                            .Message("SerialData.Eof received on port {port} – treating as completion", port.PortName)
+                            .Write();
+                        observer.OnCompleted();
+                    }
+
                     break;
                 case SerialData.Chars:
                     try
                     {
-                        byte[] inputByte = new byte[1];
+                        var inputByte = new byte[1];
                         while (port.BytesToRead > 0)
                         {
                             inputByte[0] = (byte)port.ReadByte();
-                            char[] inputUnicode = port.Encoding.GetChars(inputByte);
+                            var inputUnicode = port.Encoding.GetChars(inputByte);
                             observer.OnNext(inputUnicode[0]);
                         }
                         //Thread.Yield();
@@ -158,6 +198,7 @@ public static class ObservableExtensions
                             .Write();
                         observer.OnError(ex);
                     }
+
                     break;
                 default:
                     log.Warn()
