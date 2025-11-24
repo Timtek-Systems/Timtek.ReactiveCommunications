@@ -156,25 +156,33 @@ public static class ObservableExtensions
     )
     {
         var log = ServiceLocator.LogService;
-        var receiveEventHandler = new SerialDataReceivedEventHandler((sender, e) =>
+
+        // Local function to handle the DataReceived event
+        void SerialDataReceivedEventHandler(object sender, SerialDataReceivedEventArgs e)
         {
             switch (e.EventType)
             {
                 case SerialData.Eof:
-                    if (eofBehaviour == EofBehaviour.Error)
+                    switch (eofBehaviour)
                     {
-                        log.Warn()
-                            .Message("SerialData.Eof received on port {port} – treating as error", port.PortName)
-                            .Write();
-                        observer.OnError(new EndOfStreamException(
-                            $"EOF received from serial port {port.PortName}"));
-                    }
-                    else
-                    {
-                        log.Warn()
-                            .Message("SerialData.Eof received on port {port} – treating as completion", port.PortName)
-                            .Write();
-                        observer.OnCompleted();
+                        case EofBehaviour.Error:
+                            // Complete the sequence with an error.
+                            log.Warn()
+                                .Message("SerialData.Eof received on port {port} – treating as error", port.PortName)
+                                .Write();
+                            observer.OnError(new EndOfStreamException($"EOF received from serial port {port.PortName}"));
+                            break;
+                        case EofBehaviour.Complete:
+                            // Complete the sequence gracefully.
+                            log.Warn()
+                                .Message("SerialData.Eof received on port {port} – treating as completion", port.PortName)
+                                .Write();
+                            observer.OnCompleted();
+                            break;
+                        case EofBehaviour.Ignore:
+                            // Do nothing and keep the rx sequence alive.
+                            log.Warn().Message("SerialData.Eof received on port {port} – ignoring", port.PortName).Write();
+                            break;
                     }
 
                     break;
@@ -206,7 +214,9 @@ public static class ObservableExtensions
                         .Write();
                     break;
             }
-        });
+        }
+
+        var receiveEventHandler = new SerialDataReceivedEventHandler(SerialDataReceivedEventHandler);
         return receiveEventHandler;
     }
 
