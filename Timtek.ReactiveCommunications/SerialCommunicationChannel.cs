@@ -39,7 +39,7 @@ public class SerialCommunicationChannel : ICommunicationChannel
     /// <exception cref="System.ArgumentException">Thrown if the supplied endpoint is not a SerialDeviceEndpoint.</exception>
     [Obsolete("Use the new constructor that configures the EOF behaviour")]
     public SerialCommunicationChannel(DeviceEndpoint endpoint, ISerialPort port = null)
-        : this(endpoint, EofBehaviour.Complete, port) { }
+        : this(endpoint, EofBehaviour.Ignore, port) { }
 
     /// <summary>Initializes a new instance of the <see cref="SerialCommunicationChannel" /> class.</summary>
     /// <param name="endpoint">The device endpoint.</param>
