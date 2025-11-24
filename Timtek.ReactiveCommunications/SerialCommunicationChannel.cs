@@ -26,21 +26,37 @@ namespace Timtek.ReactiveCommunications;
 /// </summary>
 public class SerialCommunicationChannel : ICommunicationChannel
 {
-    private const string LineTerminatorValue = "\n";
+    private readonly  EofBehaviour         eofBehaviour;
+    private const     string               LineTerminatorValue = "\n";
     internal readonly SerialDeviceEndpoint endpoint;
-    private readonly ILog log = ServiceLocator.LogService;
+    private readonly  ILog                 log = ServiceLocator.LogService;
+
+    /// <summary>
+    ///     Backward-compatibility constructor signature.
+    /// </summary>
+    /// <param name="endpoint">An endpoint describing the port configuration.</param>
+    /// <param name="port">A preconfigured ISerialPort instance to be used 'as-is'. Mainly useful for unit testing.</param>
+    /// <exception cref="System.ArgumentException">Thrown if the supplied endpoint is not a SerialDeviceEndpoint.</exception>
+    [Obsolete("Use the new constructor that configures the EOF behaviour")]
+    public SerialCommunicationChannel(DeviceEndpoint endpoint, ISerialPort port = null)
+        : this(endpoint, EofBehaviour.Complete, port) { }
 
     /// <summary>Initializes a new instance of the <see cref="SerialCommunicationChannel" /> class.</summary>
     /// <param name="endpoint">The device endpoint.</param>
     /// <param name="port">The port.</param>
     /// <exception cref="System.ArgumentException">Expected a SerialDeviceEndpoint</exception>
-    public SerialCommunicationChannel(DeviceEndpoint endpoint, ISerialPort port = null)
+    public SerialCommunicationChannel(
+        DeviceEndpoint endpoint,
+        EofBehaviour   eofBehaviour,
+        ISerialPort    port = null
+    )
     {
         if (!(endpoint is SerialDeviceEndpoint))
             throw new ArgumentException("Expected a SerialDeviceEndpoint");
+        this.eofBehaviour = eofBehaviour;
         this.endpoint = endpoint as SerialDeviceEndpoint;
         Port = port ?? CreateSerialPort(this.endpoint);
-        observableReceiveSequence = Port.ToObservableCharacterSequence()
+        observableReceiveSequence = Port.ToObservableCharacterSequence(this.eofBehaviour)
             .Trace($"Serial-{this.endpoint.PortName}")
             .Publish();
     }
