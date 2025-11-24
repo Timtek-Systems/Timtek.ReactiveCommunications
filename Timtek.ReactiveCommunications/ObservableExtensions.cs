@@ -171,7 +171,7 @@ public static class ObservableExtensions
                     }
                     else
                     {
-                        log.Info()
+                        log.Warn()
                             .Message("SerialData.Eof received on port {port} – treating as completion", port.PortName)
                             .Write();
                         observer.OnCompleted();
