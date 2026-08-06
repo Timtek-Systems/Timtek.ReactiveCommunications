@@ -144,6 +144,48 @@ We typically add `Open()` and `Close()` methods in our comms class.
 
 ## Release Notes
 
+3.0.0
+  : **Breaking change:** `DeviceTransaction.ObserveResponse(IObservable<char>)` now returns
+    `IDisposable` instead of `void`. Any derived transaction class that overrides `ObserveResponse`
+    must be updated to return the `IDisposable` produced by its `.Subscribe(...)` call (or
+    `Disposable.Empty` if it does not subscribe to anything).
+  : *Why:* each transaction's `ObserveResponse` subscribes to the shared, long-lived response
+    character sequence. Previously the returned subscription was discarded, so if a transaction
+    timed out before a matching response arrived, its subscription stayed attached to the shared
+    sequence forever. A later, unrelated response intended for a completely different transaction
+    could then be misattributed to the timed-out transaction, silently flipping its state from
+    `Failed` back to `Completed`. On a long-running channel, these stale subscriptions accumulated
+    without bound. `TransactionObserver` now disposes of each transaction's subscription as soon as
+    it completes, fails, or times out, which requires the subscription to be returned so its
+    lifetime can be owned by the caller.
+  : *What to do:* find every `override void ObserveResponse(IObservable<char> source)` in your code
+    and change it to `override IDisposable ObserveResponse(IObservable<char> source)`, then return
+    the subscription instead of discarding it. Most projects subclass a single protocol-specific
+    intermediate base class rather than `DeviceTransaction` directly, so typically only one or two
+    classes per project need this change, not every concrete transaction type.
+  : Also fixes a related bug where a channel `Send` failure on one transaction could leave the
+    "active transactions" guard permanently incremented, causing every subsequent transaction to be
+    rejected with a spurious "Detected transaction overlap" exception.
+  : **Reliability fix (non-breaking):** long-lived, reused channels could silently stop receiving
+    any data at all after a single transient receive glitch (for example, a flaky USB-serial
+    adapter briefly reporting end-of-file), even though `IsOpen` kept reporting `true`. The
+    previously recommended workaround was to tear down and recreate the entire channel/port stack
+    for every command, which avoided the problem but was needlessly expensive.
+  : *Why:* `SerialCommunicationChannel` publishes its received-character sequence through a single,
+    long-lived Rx `Subject`, created once and connected once in `Open()`. A plain Rx `Subject`
+    permanently terminates the first time it delivers `OnError` or `OnCompleted` to its
+    subscribers; every observer that subscribes afterwards receives the same terminal notification,
+    or nothing, forever. This was compounded by a second, previously-latent bug:
+    `ToObservableCharacterSequence`'s unsubscribe logic built a brand-new delegate instance for the
+    `-=` operation instead of reusing the exact delegate instance that had been added via `+=`, so
+    the unsubscribe silently removed nothing and stale event handlers could accumulate on the port.
+  : *What changed:* the character-receive pipeline now resubscribes itself automatically and
+    indefinitely on error or completion (`Retry().Repeat()`), so a transient glitch is recovered
+    from transparently instead of permanently killing the pipeline. The delegate/unsubscribe bug
+    was also fixed so that each automatic resubscription correctly detaches its predecessor first,
+    preventing duplicate handlers from accumulating on the port. No public API changed; this is a
+    drop-in reliability improvement for all existing consumers of `SerialCommunicationChannel`.
+
 2.2.0
   : Minor logging changes to force transactions to render using `Transaction.ToString()`.
   : Made serial port opening and closing idempotent.

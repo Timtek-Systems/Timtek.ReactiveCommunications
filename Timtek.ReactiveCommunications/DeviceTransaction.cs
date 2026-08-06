@@ -237,7 +237,15 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
     ///     produce the desired results.
     /// </summary>
     /// <param name="source">The source.</param>
-    public abstract void ObserveResponse(IObservable<char> source);
+    /// <returns>
+    ///     The <see cref="IDisposable" /> subscription that was created against <paramref name="source" />.
+    ///     The caller (normally <see cref="TransactionObserver" />) owns this subscription and is
+    ///     responsible for disposing of it once the transaction has completed, failed, or timed out. This
+    ///     ensures a transaction's subscription to the shared response sequence does not outlive the
+    ///     transaction itself, which would otherwise leak and could allow a later, unrelated response to be
+    ///     misattributed to this transaction.
+    /// </returns>
+    public abstract IDisposable ObserveResponse(IObservable<char> source);
 
     /// <summary>
     ///     Called when the response sequence produces a value. This sets the transaction's Response string

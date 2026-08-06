@@ -124,7 +124,7 @@ class ResettableTransaction : DeviceTransaction
 {
     public ResettableTransaction(string command) : base(command) { }
 
-    public override void ObserveResponse(IObservable<char> source)
+    public override IDisposable ObserveResponse(IObservable<char> source)
     {
         throw new NotImplementedException();
     }

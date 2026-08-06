@@ -7,10 +7,7 @@
     <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Timtek.GitFlowVersion" Version="3.1.1" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
     <PackageReference Include="TA.Utils.Core" Version="2.3.0" />
   </ItemGroup>

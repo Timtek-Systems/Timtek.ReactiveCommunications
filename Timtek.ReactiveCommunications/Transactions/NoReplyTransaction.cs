@@ -12,6 +12,7 @@
 
 using System;
 using System.Diagnostics.Contracts;
+using System.Reactive.Disposables;
 using TA.Utils.Core;
 
 namespace Timtek.ReactiveCommunications.Transactions;
@@ -31,10 +32,11 @@ public class NoReplyTransaction : DeviceTransaction
     ///     immediately.
     /// </summary>
     /// <param name="source">The source sequence of received characters (ignored).</param>
-    public override void ObserveResponse(IObservable<char> source)
+    public override IDisposable ObserveResponse(IObservable<char> source)
     {
         Contract.Ensures(Response != null);
         Response = Maybe<string>.From(string.Empty); // string.Empty is a value, not the absence of a value.
         OnCompleted();
+        return Disposable.Empty;
     }
 }

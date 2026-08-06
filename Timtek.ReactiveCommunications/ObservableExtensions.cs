@@ -77,9 +77,11 @@ public static class ObservableExtensions
     {
         return Observable.Create<char>(observer =>
         {
-            port.DataReceived += ReactiveDataReceivedEventHandler(port, observer);
-            port.ErrorReceived += ReactiveErrorReceivedEventHandler(observer);
-            return UnsubscribeAction(port, observer);
+            var dataReceivedHandler = ReactiveDataReceivedEventHandler(port, observer);
+            var errorReceivedHandler = ReactiveErrorReceivedEventHandler(observer);
+            port.DataReceived += dataReceivedHandler;
+            port.ErrorReceived += errorReceivedHandler;
+            return UnsubscribeAction(port, dataReceivedHandler, errorReceivedHandler);
         });
     }
 
@@ -99,21 +101,33 @@ public static class ObservableExtensions
         EofBehaviour     eofBehaviour) =>
         Observable.Create<char>(observer =>
         {
-            port.DataReceived += ReactiveDataReceivedEventHandler(port, observer, eofBehaviour);
-            port.ErrorReceived += ReactiveErrorReceivedEventHandler(observer);
-            return UnsubscribeAction(port, observer);
+            var dataReceivedHandler = ReactiveDataReceivedEventHandler(port, observer, eofBehaviour);
+            var errorReceivedHandler = ReactiveErrorReceivedEventHandler(observer);
+            port.DataReceived += dataReceivedHandler;
+            port.ErrorReceived += errorReceivedHandler;
+            return UnsubscribeAction(port, dataReceivedHandler, errorReceivedHandler);
         });
 
-    /// <summary>Returns an Action to be called when the observer unsubscribes.</summary>
+    /// <summary>
+    ///     Returns an Action to be called when the observer unsubscribes. The same delegate instances that
+    ///     were added to the port's events must be passed in here so they can be correctly removed again;
+    ///     creating fresh delegate instances for the <c>-=</c> operations (as opposed to reusing the exact
+    ///     instances used for <c>+=</c>) would silently fail to unsubscribe, since delegate removal relies
+    ///     on reference/target equality.
+    /// </summary>
     /// <param name="port">The port.</param>
-    /// <param name="observer">The observer.</param>
+    /// <param name="dataReceivedHandler">The exact delegate instance that was added to <see cref="ISerialPort.DataReceived" />.</param>
+    /// <param name="errorReceivedHandler">The exact delegate instance that was added to <see cref="ISerialPort.ErrorReceived" />.</param>
     /// <returns>Action.</returns>
-    private static Action UnsubscribeAction(ISerialPort port, IObserver<char> observer)
+    private static Action UnsubscribeAction(
+        ISerialPort                    port,
+        SerialDataReceivedEventHandler dataReceivedHandler,
+        SerialErrorReceivedEventHandler errorReceivedHandler)
     {
         return () =>
         {
-            port.DataReceived -= ReactiveDataReceivedEventHandler(port, observer);
-            port.ErrorReceived -= ReactiveErrorReceivedEventHandler(observer);
+            port.DataReceived -= dataReceivedHandler;
+            port.ErrorReceived -= errorReceivedHandler;
             // depending on ownership of port, we could Dispose it here too
         };
     }

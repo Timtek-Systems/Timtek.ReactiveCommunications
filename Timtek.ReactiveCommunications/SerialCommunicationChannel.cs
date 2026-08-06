@@ -56,7 +56,19 @@ public class SerialCommunicationChannel : ICommunicationChannel
         this.eofBehaviour = eofBehaviour;
         this.endpoint = endpoint as SerialDeviceEndpoint;
         Port = port ?? CreateSerialPort(this.endpoint);
+        /*
+         * A plain Rx Subject (which is what Publish() uses internally) permanently terminates the
+         * first time it receives OnError or OnCompleted. Without .Retry().Repeat() here, a single
+         * transient receive glitch (e.g. a flaky adapter reporting EOF, or a momentary
+         * InvalidOperationException from ReadByte()) at any point during a long-lived channel's life
+         * would silently and permanently kill the receive pipeline for every subsequent command,
+         * even though IsOpen keeps reporting true. .Retry() resubscribes forever on error, and
+         * .Repeat() resubscribes forever on completion, so the underlying DataReceived/ErrorReceived
+         * handlers are always re-attached to the still-open port after a glitch.
+         */
         observableReceiveSequence = Port.ToObservableCharacterSequence(this.eofBehaviour)
+            .Retry()
+            .Repeat()
             .Trace($"Serial-{this.endpoint.PortName}")
             .Publish();
     }
