@@ -36,7 +36,10 @@ and just needs to save a "connection string" in settings to recreate the correct
     <Title>A well-factored pattern for communicating with devices in a reactive style.</Title>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Timtek.GitFlowVersion" Version="3.1.1" />
+    <PackageReference Include="Timtek.GitFlowVersion" Version="3.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
