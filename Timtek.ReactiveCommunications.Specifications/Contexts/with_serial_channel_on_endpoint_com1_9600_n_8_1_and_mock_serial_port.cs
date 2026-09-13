@@ -46,7 +46,7 @@ namespace Timtek.ReactiveCommunications.Specifications.Contexts
             DeviceEndpoint = SerialEndpoint;
             MockPort = A.Fake<ISerialPort>();
             A.CallTo(() => MockPort.IsOpen).Returns(true);
-            Channel = new SerialCommunicationChannel(DeviceEndpoint, MockPort);
+            Channel = new SerialCommunicationChannel(DeviceEndpoint, EofBehaviour.Ignore, MockPort);
             Thrown = null;
             };
         }

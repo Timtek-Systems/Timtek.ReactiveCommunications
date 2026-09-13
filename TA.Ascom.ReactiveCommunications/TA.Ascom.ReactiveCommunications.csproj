@@ -45,12 +45,12 @@ For more information and a quick-start tutorial, please see http://tigra-astrono
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Timtek.GitFlowVersion" Version="3.1.1" />
-    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
-    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
-    <PackageReference Include="System.Reactive" Version="5.0.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
-    <PackageReference Include="TA.Utils.Core" Version="2.3.0-console-logger.3" />
+    <PackageReference Include="Timtek.GitFlowVersion" />
+    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Include="System.IO.Ports" />
+    <PackageReference Include="System.Reactive" />
+    <PackageReference Include="System.Text.Encoding.CodePages" />
+    <PackageReference Include="TA.Utils.Core" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\NugetPackageIcon.png">
