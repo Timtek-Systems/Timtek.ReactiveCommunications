@@ -38,15 +38,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FakeItEasy" Version="8.0.0" />
-    <PackageReference Include="Timtek.GitFlowVersion" Version="3.1.1" />
-    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
-    <PackageReference Include="Machine.Specifications.Runner.VisualStudio" Version="2.10.2" />
-    <PackageReference Include="Machine.Specifications.Should" Version="1.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
-    <PackageReference Include="TA.Utils.Core" Version="2.3.0" />
-    <PackageReference Include="TA.Utils.Logging.Nlog" Version="2.3.0" />
+    <PackageReference Include="FakeItEasy" />
+    <PackageReference Include="NLog.Targets.Trace" />
+    <PackageReference Include="Timtek.GitFlowVersion">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Include="Machine.Specifications.Runner.VisualStudio" />
+    <PackageReference Include="Machine.Specifications.Should" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="System.Text.Encoding.CodePages" />
+    <PackageReference Include="TA.Utils.Core" />
+    <PackageReference Include="TA.Utils.Logging.Nlog" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Timtek.ReactiveCommunications\Timtek.ReactiveCommunications.csproj" />
