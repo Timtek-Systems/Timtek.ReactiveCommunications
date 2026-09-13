@@ -33,9 +33,9 @@ namespace Timtek.ReactiveCommunications.Specifications.Fakes
 
         public string Value { get; private set; }
 
-        public override void ObserveResponse(IObservable<char> source)
+        public override IDisposable ObserveResponse(IObservable<char> source)
             {
-            source.Buffer(completeAfter)
+            return source.Buffer(completeAfter)
                 .Select(p => new string(p.ToArray()))
                 //.ObserveOn(NewThreadScheduler.Default)
                 .Take(1)

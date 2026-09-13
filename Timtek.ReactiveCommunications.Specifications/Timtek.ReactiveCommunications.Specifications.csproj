@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net4.8.1;net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <Version>0.0.0</Version>
     <Authors>Tim Long</Authors>
     <Company>Timtek Systems Limited</Company>
@@ -38,10 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="8.0.0" />
-    <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Timtek.GitFlowVersion" Version="3.1.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageReference Include="Machine.Specifications.Runner.VisualStudio" Version="2.10.2" />
     <PackageReference Include="Machine.Specifications.Should" Version="1.0.0" />
