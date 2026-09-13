@@ -43,7 +43,7 @@ namespace TransactionalCommunicationModel
          * pluck out only the data that would be a valid response.
          * You can use LINQ operators and some helper methods provided by RxComms.
          */
-        public override void ObserveResponse(IObservable<char> source)
+        public override IDisposable ObserveResponse(IObservable<char> source)
             {
             /*
              * Status responses look like this:
@@ -75,6 +75,7 @@ namespace TransactionalCommunicationModel
                  * in the DeviceTransaction base class and our overridden OnCompleted action.
                  */
                 .Subscribe(OnNext, OnError, OnCompleted);
+            return statusResponse;
             }
 
         /*

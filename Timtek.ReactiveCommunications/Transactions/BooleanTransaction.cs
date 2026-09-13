@@ -36,9 +36,9 @@ public class BooleanTransaction : DeviceTransaction
     ///     has been received.
     /// </summary>
     /// <param name="source">The source sequence.</param>
-    public override void ObserveResponse(IObservable<char> source)
+    public override IDisposable ObserveResponse(IObservable<char> source)
     {
-        source.TerminatedBoolean().Take(1).Subscribe(OnNext, OnError, OnCompleted);
+        return source.TerminatedBoolean().Take(1).Subscribe(OnNext, OnError, OnCompleted);
     }
 
     /// <summary>Called when the response sequence completes. This indicates a successful transaction.</summary>

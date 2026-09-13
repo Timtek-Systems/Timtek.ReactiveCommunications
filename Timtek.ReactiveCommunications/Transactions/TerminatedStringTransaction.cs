@@ -58,9 +58,9 @@ public class TerminatedStringTransaction : DeviceTransaction
     ///     has been received.
     /// </summary>
     /// <param name="source">The source sequence.</param>
-    public override void ObserveResponse(IObservable<char> source)
+    public override IDisposable ObserveResponse(IObservable<char> source)
     {
-        source.DelimitedMessageStrings(initiator, terminator)
+        return source.DelimitedMessageStrings(initiator, terminator)
             .Take(1)
             .Subscribe(OnNext, OnError, OnCompleted);
     }

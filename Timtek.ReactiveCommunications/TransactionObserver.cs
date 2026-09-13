@@ -100,37 +100,46 @@ public class TransactionObserver : IObserver<DeviceTransaction>
         Contract.Requires(transaction != null);
         Contract.Requires(!string.IsNullOrEmpty(transaction.Command));
         var transactionsInFlight = Interlocked.Increment(ref activeTransactions);
-        if (transactionsInFlight > 1)
+        try
         {
-            // This should never happen and if it does then we have a serious concurrency bug
-            log.Error()
-                .Message("Detected transaction overlap before committing {$transaction}", transaction)
-                .Write();
-            throw new InvalidOperationException("Detected transaction overlap");
-        }
-        transaction.MakeHot();
-        transaction.ObserveResponse(observableReceiveSequence);
-        using (var responseSequence = observableReceiveSequence.Connect())
-        {
-            channel.Send(transaction.Command);
-            var succeeded = transaction.WaitForCompletionOrTimeout();
-            if (!succeeded)
+            if (transactionsInFlight > 1)
+            {
+                // This should never happen and if it does then we have a serious concurrency bug
+                log.Error()
+                    .Message("Detected transaction overlap before committing {$transaction}", transaction)
+                    .Write();
+                throw new InvalidOperationException("Detected transaction overlap");
+            }
+            transaction.MakeHot();
+            using (transaction.ObserveResponse(observableReceiveSequence))
+            using (var responseSequence = observableReceiveSequence.Connect())
+            {
+                channel.Send(transaction.Command);
+                var succeeded = transaction.WaitForCompletionOrTimeout();
+                if (!succeeded)
+                    log.Warn()
+                        .Transaction(transaction)
+                        .Message("Transaction {id} timed out with reason: {message}",
+                                 transaction.TransactionId, transaction.ErrorMessage.SingleOrDefault())
+                        .Write();
+            }
+            if (transaction.Failed)
                 log.Warn()
                     .Transaction(transaction)
-                    .Message("Transaction {id} timed out with reason: {message}",
-                             transaction.TransactionId, transaction.ErrorMessage.SingleOrDefault())
+                    .Message("Transaction {id} was marked as FAILED", transaction.TransactionId)
                     .Write();
-        }
-        if (transaction.Failed)
-            log.Warn()
+            log.Info()
                 .Transaction(transaction)
-                .Message("Transaction {id} was marked as FAILED", transaction.TransactionId)
+                .Message("Transaction {id} completed", transaction.TransactionId)
                 .Write();
-        log.Info()
-            .Transaction(transaction)
-            .Message("Transaction {id} completed", transaction.TransactionId)
-            .Write();
-        transactionsInFlight = Interlocked.Decrement(ref activeTransactions);
+        }
+        finally
+        {
+            // This decrement must always happen, even if Send, WaitForCompletionOrTimeout or the response
+            // subscription throws, otherwise the guard is left permanently incremented and every
+            // subsequent transaction is rejected with a spurious "Detected transaction overlap" exception.
+            transactionsInFlight = Interlocked.Decrement(ref activeTransactions);
+        }
         if (transactionsInFlight != 0)
         {
             // This should never happen and if it does then we have a serious concurrency bug
