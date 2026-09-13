@@ -7,13 +7,16 @@
     <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Timtek.GitFlowVersion" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageReference Include="NLog.Schema" Version="5.2.7" />
-    <PackageReference Include="NLog.Targets.Seq" Version="3.0.0" />
-    <PackageReference Include="System.Reactive" Version="6.0.0" />
-    <PackageReference Include="TA.Utils.Core" Version="2.3.0" />
-    <PackageReference Include="TA.Utils.Logging.Nlog" Version="2.3.0" />
+    <PackageReference Include="Timtek.GitFlowVersion">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="NLog.Schema" />
+    <PackageReference Include="NLog.Targets.Seq" />
+    <PackageReference Include="System.Reactive" />
+    <PackageReference Include="TA.Utils.Core" />
+    <PackageReference Include="TA.Utils.Logging.Nlog" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Timtek.ReactiveCommunications\Timtek.ReactiveCommunications.csproj" />

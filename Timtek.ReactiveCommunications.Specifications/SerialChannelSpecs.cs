@@ -38,7 +38,7 @@ namespace Timtek.ReactiveCommunications.Specifications
         Establish context = () =>
             DeviceEndpoint = new NetworkDeviceEndpoint("dummy", 8080);
         Because of =
-            () => Thrown = Catch.Exception(() => Channel = new SerialCommunicationChannel(DeviceEndpoint));
+            () => Thrown = Catch.Exception(() => Channel = new SerialCommunicationChannel(DeviceEndpoint, EofBehaviour.Ignore));
         It should_throw_argument_exception = () => Thrown.ShouldBeOfExactType<ArgumentException>();
         }
 
