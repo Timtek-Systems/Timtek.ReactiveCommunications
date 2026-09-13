@@ -145,6 +145,19 @@ We typically add `Open()` and `Close()` methods in our comms class.
 ## Release Notes
 
 3.0.0
+  : **Breaking change:** the library now targets `netstandard2.0` and `net10.0`.
+    The previous `netstandard2.1`, `net4.8`, `net6.0`, `net7.0`, and `net8.0`
+    target frameworks were removed. Applications targeting one of the removed
+    frameworks must retarget to .NET 10 or reference the `netstandard2.0` asset.
+  : *Why:* .NET 10 is now the supported modern target, while `netstandard2.0`
+    preserves compatibility for consumers that do not need the newer APIs.
+    Dropping the overlapping framework-specific builds reduces the maintenance
+    matrix and ensures that all modern consumers use the same implementation.
+  : **Build fix:** the repository now pins the .NET 10 SDK in `global.json`.
+    This fixes builds that selected the .NET 8 SDK and consequently failed with
+    `NETSDK1045` when evaluating the `net10.0` target. The specification project
+    also enables the latest C# language version so its existing file-scoped
+    namespaces compile for the .NET Framework test target.
   : **Breaking change:** `DeviceTransaction.ObserveResponse(IObservable<char>)` now returns
     `IDisposable` instead of `void`. Any derived transaction class that overrides `ObserveResponse`
     must be updated to return the `IDisposable` produced by its `.Subscribe(...)` call (or
