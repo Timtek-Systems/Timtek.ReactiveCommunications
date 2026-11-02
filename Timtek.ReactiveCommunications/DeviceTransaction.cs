@@ -40,6 +40,8 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
     private readonly ManualResetEvent hot;
     protected string command;
 
+    private volatile TimeProvider timeProvider;
+
     /// <summary>Initializes a new instance of the <see cref="DeviceTransaction" /> class.</summary>
     /// <param name="command">The command to be sent to the communications channel.</param>
     /// <remarks>
@@ -111,6 +113,23 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
     protected TimeSpan HotTimeout { get; set; }
 
     /// <summary>
+    ///     Gets the clock used to time out this transaction. It is always the clock of the
+    ///     <see cref="TransactionObserver" /> that executes the transaction, and is
+    ///     <see cref="System.TimeProvider.System" /> (the real clock, exactly as before) unless the observer was
+    ///     given another one, for example a fake in unit tests.
+    /// </summary>
+    internal TimeProvider TimeProvider => timeProvider ?? TimeProvider.System;
+
+    internal void InheritTimeProviderFromObserver(TimeProvider provider)
+    {
+        var current = timeProvider;
+        if (current != null && !ReferenceEquals(current, provider))
+            throw new InvalidOperationException(
+                "A transaction's TimeProvider must not change, including when it is reset and retried.");
+        timeProvider = provider;
+    }
+
+    /// <summary>
     ///     Gets the response string exactly as observed from the response sequence. The response is
     ///     wrapped in a <see cref="Maybe{String}" /> to differentiate an empty response from no response
     ///     or a failed response. An empty Maybe indicates an error condition. Commands where no repsponse
@@ -163,7 +182,7 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
 
     internal bool WaitUntilHotOrTimeout()
     {
-        var wasHot = hot.WaitOne(HotTimeout);
+        var wasHot = WaitForSignal(hot, HotTimeout);
         if (!wasHot)
         {
             State = TransactionLifecycle.Failed;
@@ -204,7 +223,7 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
         var hot = WaitUntilHotOrTimeout();
         if (!hot)
             return false;
-        var signalled = completion.WaitOne(Timeout);
+        var signalled = WaitForSignal(completion, Timeout);
         if (!signalled)
         {
             Response = Maybe<string>.Empty;
@@ -224,6 +243,31 @@ This might be a sign that the custom transaction class hasn't called base.OnComp
     public Task<bool> WaitForCompletionOrTimeoutAsync(CancellationToken cancellation)
     {
         return Task.Run(WaitForCompletionOrTimeout, cancellation);
+    }
+
+    private bool WaitForSignal(WaitHandle signal, TimeSpan timeout)
+    {
+        var clock = TimeProvider;
+        if (ReferenceEquals(clock, TimeProvider.System))
+            return signal.WaitOne(timeout); // The real clock: behaviour is exactly as it has always been.
+        if (signal.WaitOne(0))
+            return true;
+        using var expired = new ManualResetEventSlim(false);
+        using var timer = clock.CreateTimer(_ => SignalExpiry(expired), null, timeout,
+            System.Threading.Timeout.InfiniteTimeSpan);
+        return WaitHandle.WaitAny(new[] { signal, expired.WaitHandle }) == 0;
+    }
+
+    // A timer callback can race with disposal of the event once the wait has already been satisfied.
+    private static void SignalExpiry(ManualResetEventSlim expired)
+    {
+        try
+        {
+            expired.Set();
+        }
+        catch (ObjectDisposedException)
+        {
+        }
     }
 
     private void SignalCompletion()

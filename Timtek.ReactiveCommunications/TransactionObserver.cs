@@ -1,4 +1,4 @@
-﻿// This file is part of the Timtek.ReactiveCommunications project
+// This file is part of the Timtek.ReactiveCommunications project
 // 
 // Copyright © 2015-2020 Tigra Astronomy, all rights reserved.
 // 
@@ -31,6 +31,7 @@ namespace Timtek.ReactiveCommunications;
 public class TransactionObserver : IObserver<DeviceTransaction>
 {
     private readonly ICommunicationChannel channel;
+    private readonly TimeProvider timeProvider;
     private readonly ILog log = ServiceLocator.LogService;
     private readonly IConnectableObservable<char> observableReceiveSequence;
     private volatile int activeTransactions;
@@ -40,8 +41,22 @@ public class TransactionObserver : IObserver<DeviceTransaction>
     ///     with a communications channel.
     /// </summary>
     /// <param name="channel">The channel.</param>
-    public TransactionObserver(ICommunicationChannel channel)
+    public TransactionObserver(ICommunicationChannel channel) : this(channel, TimeProvider.System)
     {
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="TransactionObserver" /> class, associates it with a
+    ///     communications channel and supplies the clock used to time out the transactions it processes.
+    /// </summary>
+    /// <param name="channel">The channel.</param>
+    /// <param name="timeProvider">
+    ///     The clock used for the timeouts of every transaction this observer executes. Supply a fake provider in unit tests.
+    /// </param>
+    public TransactionObserver(ICommunicationChannel channel, TimeProvider timeProvider)
+    {
+        Contract.Requires(timeProvider != null);
+        this.timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         Contract.Requires(channel != null);
         this.channel = channel;
         observableReceiveSequence = channel.ObservableReceivedCharacters.Publish();
@@ -110,6 +125,7 @@ public class TransactionObserver : IObserver<DeviceTransaction>
                     .Write();
                 throw new InvalidOperationException("Detected transaction overlap");
             }
+            transaction.InheritTimeProviderFromObserver(timeProvider);
             transaction.MakeHot();
             using (transaction.ObserveResponse(observableReceiveSequence))
             using (var responseSequence = observableReceiveSequence.Connect())

@@ -27,10 +27,13 @@ public static class LoggingExtensions
         builder.Property("transactionId",      transaction.TransactionId);
         builder.Property("transactionCommand", transaction.Command);
         builder.Property("transactionState",   transaction.State);
-        if (transaction.ErrorMessage.Any())
-            builder.Property("transactionError", transaction.ErrorMessage.Single());
-        if (transaction.Response.Any())
-            builder.Property("transactionResponse", transaction.Response.Single());
+        // Take snapshots: another thread may clear these on timeout between the Any() check and the Single() call.
+        var errorMessage = transaction.ErrorMessage;
+        var response = transaction.Response;
+        if (errorMessage.Any())
+            builder.Property("transactionError", errorMessage.Single());
+        if (response.Any())
+            builder.Property("transactionResponse", response.Single());
         return builder;
     }
 

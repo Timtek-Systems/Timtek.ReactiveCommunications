@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FakeItEasy" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
     <PackageReference Include="NLog.Targets.Trace" />
     <PackageReference Include="Timtek.GitFlowVersion">
       <PrivateAssets>all</PrivateAssets>

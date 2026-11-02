@@ -46,6 +46,10 @@ and just needs to save a "connection string" in settings to recreate the correct
     <PackageReference Include="System.Text.Encoding.CodePages" />
     <PackageReference Include="TA.Utils.Core" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <!-- TimeProvider is built in from .NET 8; this backport type-forwards to it on modern runtimes. -->
+    <PackageReference Include="Microsoft.Bcl.TimeProvider" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="..\images\NuGet-Package-Icon.png">
       <Pack>True</Pack>

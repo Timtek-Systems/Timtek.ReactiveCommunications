@@ -108,6 +108,7 @@ _NCrunch_*
 .*crunch*.local.xml
 _ncrunch_results/
 _ncrunch_cache/
+NCrunchResults/
 
 # MightyMoose
 *.mm.*

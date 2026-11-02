@@ -32,7 +32,10 @@ public class ReactiveTransactionProcessor : ITransactionProcessor, IDisposable
     ///     Create and initialise a new transaction processor.
     /// </summary>
     /// <param name="log">Optional - a logging service.</param>
-    public ReactiveTransactionProcessor([CanBeNull] ILog log = null) => this.log = log ?? new DegenerateLoggerService();
+    public ReactiveTransactionProcessor([CanBeNull] ILog log = null)
+    {
+        this.log = log ?? new DegenerateLoggerService();
+    }
 
     /// <summary>
     ///     Commits a transaction. That is, submits it for execution with no way to cancel. From this
@@ -41,10 +44,7 @@ public class ReactiveTransactionProcessor : ITransactionProcessor, IDisposable
     ///     value ( <see cref="Maybe{T}.Empty" /> or <c>Response.Any() == false</c>).
     /// </summary>
     /// <param name="transaction">The transaction to be processed.</param>
-    public void CommitTransaction(DeviceTransaction transaction)
-    {
-        OnTransactionAvailable(transaction);
-    }
+    public void CommitTransaction(DeviceTransaction transaction) => OnTransactionAvailable(transaction);
 
     /// <summary>
     ///     Connects this transaction processor to a transaction observer, which will orchestrate the
