@@ -142,7 +142,44 @@ We typically add `Open()` and `Close()` methods in our comms class.
 - the `Open()` method creates the object triad and opens the channel;
 - the `Close()` method closes the channel and disposes the object triad.
 
+### Testing Without Real Time
+
+Transaction timeouts normally use the real clock, which makes unit tests that exercise timeouts slow and, on a heavily loaded machine, flaky (a test that expects exactly one timeout may see several).
+To make timeouts fully deterministic, give the `TransactionObserver` a `TimeProvider`.
+In tests, use `FakeTimeProvider` from the `Microsoft.Extensions.TimeProvider.Testing` package:
+
+```csharp
+var clock    = new FakeTimeProvider();
+var observer = new TransactionObserver(channel, clock);
+```
+
+The observer executes every transaction, so every transaction it runs is timed by the observer's clock, including the caller's own wait via `WaitForCompletionOrTimeoutAsync()`.
+A timeout then fires only when the fake clock is advanced past the transaction's `Timeout` (or `HotTimeout`), and never because the machine was slow:
+
+```csharp
+clock.Advance(transaction.Timeout);
+```
+
+A few things to be aware of:
+
+- If you do not supply a `TimeProvider`, the observer uses `TimeProvider.System` and behaves exactly as it always has. Existing code is unaffected.
+- Advancing a fake clock before the code under test has created its timer has no effect. Make sure the transaction has started waiting before advancing the clock.
+- A transaction's clock must never change. If a transaction is reset and retried, it must be retried through an observer that uses the same `TimeProvider`. Committing it to an observer with a different one throws `InvalidOperationException`.
+- On `netstandard2.0` the library depends on the `Microsoft.Bcl.TimeProvider` package, which supplies `TimeProvider` to older frameworks.
+
 ## Release Notes
+
+3.1.0
+  : **New feature:** a `TimeProvider` can be supplied to `TransactionObserver` using the new
+    `TransactionObserver(ICommunicationChannel, TimeProvider)` constructor, so that transaction timeouts
+    can be driven deterministically in unit tests. See *Testing Without Real Time* above.
+    Existing code is unaffected: the existing constructor uses the system clock, and timeouts behave exactly as before.
+  : **New dependency:** on `netstandard2.0` the library now references `Microsoft.Bcl.TimeProvider`.
+    The `net10.0` target uses the framework's own `TimeProvider`.
+  : **Reliability fix (non-breaking):** `LoggingExtensions.Transaction()` could throw
+    `InvalidOperationException: Sequence contains no elements` while logging a transaction that was timing out,
+    because the transaction's `ErrorMessage` and `Response` could change between checking and reading them.
+    The values are now read once before use.
 
 3.0.0
   : **Breaking change:** the library now targets `netstandard2.0` and `net10.0`.
